@@ -44,8 +44,9 @@ def make_poverty_graph(data, output_folder, state):
     ax.set_xticks(x)
     ax.set_xticklabels(counties)
     ax.legend()
-    ax.bar_label(a, padding=3)
-    ax.bar_label(b, padding=3)
+    ax.bar_label(a, padding=3, fontsize='6')
+    ax.bar_label(b, padding=3, fontsize='6')
+    # add only horizonatal dashed gridlines
     ax.yaxis.grid(ls='-.')
     plt.savefig(output_folder + state + '_poverty_graph.png')
     
@@ -78,8 +79,9 @@ def make_income_graph(data, output_folder, state):
     ax.set_xticks(x)
     ax.set_xticklabels(counties)
     ax.legend()
-    ax.bar_label(a, padding=3)
-    ax.bar_label(b, padding=3)
+    ax.bar_label(a, padding=3, fontsize='6')
+    ax.bar_label(b, padding=3, fontsize='6')
+    # add only horizonatal dashed gridlines
     ax.yaxis.grid(ls='-.')
     plt.savefig(output_folder + state + '_income_graph.png')
     plt.show()
