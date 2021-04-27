@@ -4,11 +4,8 @@ import requests
 def get_income_and_poverty(cur, conn):
     income_and_poverty_API = 'https://api.census.gov/data/timeseries/poverty/saipe?get=SAEPOVALL_PT,SAEMHI_PT,NAME&for=county:*&in=state:*&time=2010'
     # set up tables
-    cur.execute("DROP TABLE IF EXISTS income")
-    cur.execute("CREATE TABLE income (average_income INTEGER, county_id TEXT PRIMARY KEY, county TEXT, state Integer)")
-    
-    cur.execute("DROP TABLE IF EXISTS poverty")
-    cur.execute("CREATE TABLE poverty (total_poverty INTEGER, county_id TEXT PRIMARY KEY, county TEXT, state Integer)")
+    cur.execute("CREATE TABLE IF NOT EXISTS income (average_income INTEGER, county_id TEXT PRIMARY KEY, county TEXT, state Integer)")
+    cur.execute("CREATE TABLE IF NOT EXISTS poverty (total_poverty INTEGER, county_id TEXT PRIMARY KEY, county TEXT, state Integer)")
     length = 0
     start_range = 0
     end_range = 25
@@ -29,9 +26,9 @@ def get_income_and_poverty(cur, conn):
             state = data[i][4]
             if average == None or total == None or county == None or state == None: continue
             # labels = ["poverty_total", "income_average", "county_name", "year", "state", "county_id"]
-            cur.execute("INSERT INTO income (average_income, county_id, county, state) VALUES (?,?,?,?)",
-                        (int(average), county_id, county, int(state)))
-            cur.execute("INSERT INTO poverty (total_poverty, county_id, county, state) VALUES (?,?,?,?)",
+            cur.execute("INSERT or IGNORE INTO income (average_income, county_id, county, state) VALUES (?,?,?,?)",
+                        (int(average), county_id, county, int(state))), (county_id)
+            cur.execute("INSERT or IGNORE INTO poverty (total_poverty, county_id, county, state) VALUES (?,?,?,?)",
                         (int(total), county_id, county, int(state)))
         # increment range
         start_range += 25
@@ -52,8 +49,7 @@ def get_race(cur, conn):
     # }
     #get data from race api
     race_API = f'https://api.census.gov/data/2010/dec/sf1?get=P001001,PCT023003,NAME&for=county:*&in=state:*'
-    cur.execute("DROP TABLE IF EXISTS race")
-    cur.execute("CREATE TABLE race (total_pop INTEGER, white_pop INTEGER, county_id TEXT PRIMARY KEY, county TEXT, state Integer)")
+    cur.execute("CREATE TABLE IF NOT EXISTS race (total_pop INTEGER, white_pop INTEGER, county_id TEXT PRIMARY KEY, county TEXT, state Integer)")
     length = 0
     start_range = 0
     end_range = 25
@@ -73,7 +69,7 @@ def get_race(cur, conn):
             county = data[i][2]
             state = data[i][3]
             # labels = ["total_pop", "race_pop", "county_name", "state", "county_id"]
-            cur.execute("INSERT INTO race (total_pop, white_pop, county_id, county, state) VALUES (?,?,?,?,?)",
+            cur.execute("INSERT or IGNORE INTO race (total_pop, white_pop, county_id, county, state) VALUES (?,?,?,?,?)",
                         (int(total_pop), int(white_pop), county_id, county, int(state)))
         start_range += 25
         end_range += 25
